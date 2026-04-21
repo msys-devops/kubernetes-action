@@ -1,12 +1,16 @@
-FROM alpine:3.11
+FROM alpine:3.20
 
-ARG KUBECTL_VERSION="1.15.10"
+ARG KUBECTL_VERSION="1.34.6"
+ARG KUBECTL_DATE="2026-04-08"
 
-RUN apk add py-pip curl
-RUN pip install pyyaml==5.3.1
-RUN pip install awscli
-RUN curl -L -o /usr/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/linux/amd64/kubectl
-RUN chmod +x /usr/bin/kubectl
+RUN apk add --no-cache \
+        curl \
+        bash \
+        aws-cli \
+        py3-yaml \
+ && curl -L -o /usr/bin/kubectl \
+        https://s3.us-west-2.amazonaws.com/amazon-eks/${KUBECTL_VERSION}/${KUBECTL_DATE}/bin/linux/amd64/kubectl \
+ && chmod +x /usr/bin/kubectl
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

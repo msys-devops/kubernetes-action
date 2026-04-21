@@ -1,11 +1,15 @@
 #!/bin/sh -l
-
-echo ${KUBE_CONFIG_DATA} | base64 -d > kubeconfig
+echo "${KUBE_CONFIG_DATA}" | base64 -d > kubeconfig
 export KUBECONFIG=kubeconfig
-
-result="$(kubectl $1)"
-
+result=$(sh -c "kubectl $1")
 status=$?
-echo ::set-output name=result::$result
+
+# Handle multiline output safely
+delimiter="EOF_$(date +%s)"
+{
+  echo "result<<${delimiter}"
+  echo "$result"
+  echo "${delimiter}"
+} >> "$GITHUB_OUTPUT"
+
 echo "$result"
-if [[ $status -eq 0 ]]; then exit 0; else exit 1; fi
